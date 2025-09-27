@@ -16,6 +16,8 @@ import {
   Trophy,
 } from "lucide-react";
 
+import { PollChartSelector } from "../components/charts";
+
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -316,12 +318,18 @@ const Results = () => {
             </Card>
           </motion.div>
         ) : viewMode === "chart" ? (
-          <ResultsChart
-            results={results}
-            totalVotes={totalVotes}
-            showPercentages={showPercentages}
-            winner={winner}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <PollChartSelector
+              pollData={poll}
+              title="Poll Results"
+              description={`${totalVotes} total votes • ${winner ? `Leading: ${winner.text}` : 'No clear winner'}`}
+              defaultChart="bar"
+            />
+          </motion.div>
         ) : (
           <ResultsTable
             results={results}

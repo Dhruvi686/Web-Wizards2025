@@ -38,9 +38,9 @@ const PollsList = () => {
   const fetchPolls = async () => {
     try {
       setLoading(true);
-      console.log('Direct API call starting...');
+      // console.log('Direct API call starting...');
       const response = await pollAPI.getPolls();
-      console.log('Direct API call response:', response);
+      // console.log('Direct API call response:', response);
       setPollsResponse(response);
       setError(null);
     } catch (err) {
@@ -66,13 +66,13 @@ const PollsList = () => {
   const polls = pollsResponse?.data?.polls || [];
 
   // Debug logging
-  console.log('PollsList Debug:', {
-    pollsResponse,
-    polls,
-    loading,
-    error,
-    pollsLength: polls.length
-  });
+  // console.log('PollsList Debug:', {
+  //   pollsResponse,
+  //   polls,
+  //   loading,
+  //   error,
+  //   pollsLength: polls.length
+  // });
 
   // Filter and sort polls
   const filteredAndSortedPolls = React.useMemo(() => {

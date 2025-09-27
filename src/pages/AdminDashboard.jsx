@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -1154,15 +1155,22 @@ const PollCard = ({ poll, index, onToggleStatus, onDelete }) => {
                 {apiUtils.formatPollDate(poll.createdAt)}
               </span>
             </div>
-            <div className="flex items-center space-x-2">
-              <Eye className="h-4 w-4 text-slate-500" />
+            <div className="flex items-center space-x-3">
+              <Link
+                to={`/admin/poll/${poll._id}`}
+                className="flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                <Shield className="h-4 w-4" />
+                <span>Admin View</span>
+              </Link>
               <a
                 href={`/poll/${poll._id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 dark:text-blue-400 hover:underline"
+                className="flex items-center space-x-1 text-slate-600 dark:text-slate-400 hover:underline"
               >
-                View
+                <Eye className="h-4 w-4" />
+                <span>Public View</span>
               </a>
             </div>
           </div>
@@ -1263,10 +1271,20 @@ const PollTable = ({ polls, onToggleStatus, onDelete }) => {
               </td>
               <td className="py-4 px-4">
                 <div className="flex items-center justify-end space-x-2">
+                  <Link to={`/admin/poll/${poll._id}`}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      title="Admin View"
+                    >
+                      <Shield className="h-4 w-4" />
+                    </Button>
+                  </Link>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => window.open(`/poll/${poll._id}`, '_blank')}
+                    title="Public View"
                   >
                     <Eye className="h-4 w-4" />
                   </Button>

@@ -15,6 +15,7 @@ import Vote from "./pages/Vote";
 import Results from "./pages/Results";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminPollDetail from "./pages/AdminPollDetail";
 
 // Import layout components
 import Navbar from "./components/Navbar";
@@ -45,6 +46,9 @@ function App() {
 
               {/* Admin Dashboard */}
               <Route path="/admin" element={<AdminDashboard />} />
+              
+              {/* Admin Poll Detail */}
+              <Route path="/admin/poll/:id" element={<AdminPollDetail />} />
 
               {/* Redirect old routes */}
               <Route path="/polls" element={<Navigate to="/" replace />} />

@@ -17,6 +17,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+import { PollChartSelector } from "../components/charts";
+
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -58,9 +60,7 @@ const PollDetail = () => {
     try {
       setPollLoading(true);
       setPollError(null);
-      console.log('Fetching poll details for ID:', id);
       const response = await pollAPI.getPoll(id);
-      console.log('Poll API response:', response);
       setPollResponse(response);
     } catch (error) {
       console.error('Poll fetch error:', error);
@@ -88,16 +88,16 @@ const PollDetail = () => {
   const results = resultsResponse?.data?.results || poll?.results || [];
 
   // Debug logging
-  console.log('PollDetail Debug:', {
-    id,
-    pollResponse,
-    poll,
-    pollLoading,
-    pollError,
-    results,
-    pollTitle: poll?.title,
-    pollOptions: poll?.options
-  });
+  // console.log('PollDetail Debug:', {
+  //   id,
+  //   pollResponse,
+  //   poll,
+  //   pollLoading,
+  //   pollError,
+  //   results,
+  //   pollTitle: poll?.title,
+  //   pollOptions: poll?.options
+  // });
 
   // Handle email submission
   const handleEmailSubmit = async (e) => {
@@ -372,8 +372,8 @@ const PollDetail = () => {
             </motion.div>
           )}
 
-          {/* Real-time Results Preview */}
-          {poll.settings?.showResults && results.length > 0 && (
+          {/* Interactive Results Charts */}
+          {poll.settings?.showResults && (poll.totalVotes > 0 || poll.options?.some(option => option.votes > 0)) && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -381,9 +381,6 @@ const PollDetail = () => {
               className="space-y-4"
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-medium text-slate-900 dark:text-slate-100">
-                  Current Results
-                </h3>
                 <div className="flex items-center space-x-1 text-xs text-slate-500 dark:text-slate-500">
                   {!resultsLoading && (
                     <>
@@ -398,37 +395,12 @@ const PollDetail = () => {
                 </div>
               </div>
 
-              <div className="grid gap-3">
-                {results.map((result, index) => (
-                  <motion.div
-                    key={result.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="space-y-2"
-                  >
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-slate-700 dark:text-slate-300">
-                        {result.text}
-                      </span>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-slate-500 dark:text-slate-400">
-                          {result.votes} votes
-                        </span>
-                        <Badge variant="outline">{result.percentage}%</Badge>
-                      </div>
-                    </div>
-                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${result.percentage}%` }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
-                      />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+              <PollChartSelector
+                pollData={poll}
+                title="Current Results"
+                description={`${poll.totalVotes || 0} total votes`}
+                defaultChart="donut"
+              />
             </motion.div>
           )}
         </CardContent>

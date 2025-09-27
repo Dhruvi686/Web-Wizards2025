@@ -355,7 +355,7 @@ router.delete('/polls/:id', validatePollId, async (req, res) => {
   }
 });
 
-// GET /admin/polls/:id/audit - Get vote audit trail
+// GET /admin/polls/:id/audit - Get vote audit trail with voter information
 router.get('/polls/:id/audit', validatePollId, async (req, res) => {
   try {
     const poll = await Poll.findById(req.params.id);
@@ -369,20 +369,43 @@ router.get('/polls/:id/audit', validatePollId, async (req, res) => {
 
     const auditTrail = await Vote.getAuditTrail(req.params.id);
 
+    // Create a map of option IDs to option text for easy lookup
+    const optionMap = {};
+    poll.options.forEach(option => {
+      optionMap[option.id] = option.text;
+    });
+
+    // Format voter information
+    const voters = auditTrail.map(vote => ({
+      id: vote._id,
+      email: vote.email,
+      selectedOption: optionMap[vote.optionId] || 'Unknown Option',
+      optionId: vote.optionId,
+      votedAt: vote.votedAt,
+      ipAddress: vote.ipAddress,
+      isValid: vote.isValid,
+      tokenHash: vote.tokenHash.substring(0, 8) + '...', // Partial hash for security
+    }));
+
     res.json({
       success: true,
       data: {
-        pollId: req.params.id,
-        pollTitle: poll.title,
-        totalVotes: auditTrail.length,
-        votes: auditTrail.map(vote => ({
-          optionId: vote.optionId,
-          tokenHash: vote.tokenHash.substring(0, 8) + '...', // Partial hash for security
-          ipAddress: vote.ipAddress,
-          userAgent: vote.userAgent,
-          votedAt: vote.votedAt,
-          isValid: vote.isValid
-        }))
+        poll: {
+          ...poll.toObject(),
+          results: poll.options?.map(option => ({
+            id: option.id,
+            text: option.text,
+            votes: option.votes || 0,
+            percentage: poll.totalVotes > 0 ? Math.round((option.votes / poll.totalVotes) * 100) : 0
+          })) || []
+        },
+        voters: voters,
+        stats: {
+          totalVotes: auditTrail.length,
+          uniqueVoters: auditTrail.length,
+          validVotes: auditTrail.filter(vote => vote.isValid).length,
+          invalidVotes: auditTrail.filter(vote => !vote.isValid).length
+        }
       }
     });
   } catch (error) {
