@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Heart, Code, Coffee, Github, Mail } from "lucide-react";
+import { Heart, Code, Coffee, Github, Mail, Twitter, Linkedin } from "lucide-react";
 import { Button } from "./ui/button";
 
 const Footer = () => {
@@ -11,10 +11,10 @@ const Footer = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="border-t bg-white/50 dark:bg-slate-950/50 backdrop-blur"
+      className="relative border-t bg-gradient-to-br from-white to-slate-100 dark:from-slate-950 dark:to-slate-900"
     >
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand and Description */}
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
@@ -22,21 +22,13 @@ const Footer = () => {
                 <div className="w-4 h-4 bg-white dark:bg-slate-900 rounded-sm" />
               </div>
               <span className="font-semibold text-slate-900 dark:text-slate-100">
-                PollSystem MVP
+                PollSystem
               </span>
             </div>
             <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
               A modern, secure polling platform built with React and Node.js.
               Create polls, collect votes via email tokens, and view real-time results.
             </p>
-            <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-500">
-              <span>Built with</span>
-              <Heart className="w-3 h-3 text-red-500" />
-              <span>using</span>
-              <Code className="w-3 h-3" />
-              <span>and lots of</span>
-              <Coffee className="w-3 h-3 text-amber-600" />
-            </div>
           </div>
 
           {/* Features */}
@@ -64,7 +56,20 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact and Links */}
+          {/* Resources */}
+          <div className="space-y-3">
+            <h3 className="font-medium text-slate-900 dark:text-slate-100">
+              Resources
+            </h3>
+            <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+              <li><a href="#" className="hover:text-blue-500">Docs</a></li>
+              <li><a href="#" className="hover:text-blue-500">API</a></li>
+              <li><a href="#" className="hover:text-blue-500">Support</a></li>
+              <li><a href="#" className="hover:text-blue-500">Blog</a></li>
+            </ul>
+          </div>
+
+          {/* Connect & Social */}
           <div className="space-y-3">
             <h3 className="font-medium text-slate-900 dark:text-slate-100">
               Connect
@@ -72,43 +77,32 @@ const Footer = () => {
             <div className="flex space-x-2">
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <Button variant="outline" size="sm" asChild>
-                  <a
-                    href="https://github.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-1"
-                  >
-                    <Github className="w-3 h-3" />
-                    <span className="hidden sm:inline">GitHub</span>
+                  <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+                    <Github className="w-4 h-4" />
                   </a>
                 </Button>
               </motion.div>
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <Button variant="outline" size="sm" asChild>
-                  <a
-                    href="mailto:hello@pollsystem.com"
-                    className="flex items-center space-x-1"
-                  >
-                    <Mail className="w-3 h-3" />
-                    <span className="hidden sm:inline">Email</span>
+                  <a href="mailto:hello@pollsystem.com">
+                    <Mail className="w-4 h-4" />
                   </a>
                 </Button>
               </motion.div>
-            </div>
-
-            {/* Tech Stack */}
-            <div className="text-xs text-slate-500 dark:text-slate-500 space-y-1">
-              <p>Built with:</p>
-              <div className="flex flex-wrap gap-1">
-                {["React", "Vite", "Node.js", "MongoDB", "shadcn/ui"].map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <Button variant="outline" size="sm" asChild>
+                  <a href="https://twitter.com">
+                    <Twitter className="w-4 h-4" />
+                  </a>
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <Button variant="outline" size="sm" asChild>
+                  <a href="https://linkedin.com">
+                    <Linkedin className="w-4 h-4" />
+                  </a>
+                </Button>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -118,18 +112,15 @@ const Footer = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800"
+          className="mt-12 pt-6 border-t border-slate-200 dark:border-slate-800"
         >
-          <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-            <div className="flex items-center space-x-4 text-xs text-slate-500 dark:text-slate-500">
+          <div className="flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 dark:text-slate-500">
+            <div className="flex items-center space-x-4">
               <span>© {currentYear} PollSystem</span>
-              <span>•</span>
-              <span>MVP Version</span>
               <span>•</span>
               <span>Made for WebWizards</span>
             </div>
-
-            <div className="flex items-center space-x-4 text-xs text-slate-500 dark:text-slate-500">
+            <div className="flex items-center space-x-4 mt-2 sm:mt-0">
               <motion.div
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -143,12 +134,6 @@ const Footer = () => {
             </div>
           </div>
         </motion.div>
-      </div>
-
-      {/* Background decoration */}
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-32 w-64 h-64 bg-gradient-to-l from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-full blur-3xl opacity-30" />
-        <div className="absolute -bottom-40 -left-32 w-64 h-64 bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/20 dark:to-blue-900/20 rounded-full blur-3xl opacity-30" />
       </div>
     </motion.footer>
   );
