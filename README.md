@@ -1,6 +1,66 @@
-# React + Vite + Shdcn
+# Polling System with Results Dashboard
 
-This template provides a minimal setup to get React working in Vite with Shadcn and more packages.
+**Project Description**
 
-You can use this template by scaffolding using "degit github:codechini/Vite-React-Shadcn" or on Github there is a "Use this template to get started".
-- Check out degit doc for more info if you face difficulty <a href='https://www.npmjs.com/package/degit' target='_blank' >degit Usage</a>.
+Web-Wizards2025 is a secure online polling system designed for educational institutions. The platform allows administrators to create polls, and students to cast votes only once per poll. The system features a real-time results dashboard with charts and graphs to visualize voting outcomes dynamically. It ensures integrity by preventing duplicate or invalid votes, making it a reliable tool for polls, surveys, and feedback collection.
+
+**Key Features:**
+
+Admins can create and manage polls with multiple options.
+
+Students can vote once per poll.
+
+Dynamic live results displayed with charts/graphs.
+
+Protection against duplicate and invalid votes.
+
+**Setup Instructions**
+
+Follow these steps to run the project locally:
+
+Clone the repository:
+
+git clone https://github.com/nandit27/Web-Wizards2025.git
+cd Web-Wizards2025
+
+
+Install dependencies:
+
+Ensure you have Node.js
+ installed. Then run:
+
+npm install
+
+
+Configure Environment Variables:
+
+Create a .env file in the root directory and add necessary configurations (e.g., MongoDB URI, admin credentials, email settings):
+
+PORT=3001
+NODE_ENV=development
+MONGO_URI=mongodb://localhost:27017/polling-system
+ADMIN_SECRET=admin
+EMAIL_HOST=your_email_host
+EMAIL_PORT=your_email_port
+EMAIL_USER=your_email
+EMAIL_PASS=your_email_password
+
+
+Run the development server:
+
+npm run dev
+
+
+The application should now be running at http://localhost:3001.
+
+**👥 Team Details**
+
+
+Nandit Kalaria
+
+Mahi patel
+
+Kavya Patel
+
+Dhruvi Patel
+
