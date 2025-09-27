@@ -164,6 +164,20 @@ export const adminAPI = {
     }
   },
 
+  // Generate AI poll
+  generateAIPoll: async (promptData, adminSecret) => {
+    try {
+      const response = await api.post('/admin/generate-poll', promptData, {
+        headers: {
+          'X-Admin-Secret': adminSecret,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // Get admin polls
   getAdminPolls: async (adminSecret, params = {}) => {
     try {

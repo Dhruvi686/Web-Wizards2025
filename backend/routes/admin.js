@@ -2,6 +2,7 @@ const express = require('express');
 const { Poll, Vote } = require('../models');
 const { adminAuth } = require('../middleware/auth');
 const { validatePollCreation, validatePollId, sanitizeRequest } = require('../middleware/validation');
+const { generatePollStructure, isConfigured } = require('../services/aiService');
 
 const router = express.Router();
 
@@ -81,6 +82,61 @@ router.post('/polls', validatePollCreation, async (req, res) => {
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to create poll'
+    });
+  }
+});
+
+// POST /admin/generate-poll - Generate poll structure using AI
+router.post('/generate-poll', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+
+    // Validate input
+    if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Prompt is required and must be a non-empty string'
+      });
+    }
+
+    // Check if AI service is configured
+    if (!isConfigured()) {
+      return res.status(503).json({
+        error: 'Service Unavailable',
+        message: 'AI service is not configured. Please set the Groq API key and model.'
+      });
+    }
+
+    // Generate poll structure using AI
+    const pollStructure = await generatePollStructure(prompt.trim());
+
+    res.json({
+      success: true,
+      message: 'Poll structure generated successfully',
+      data: pollStructure
+    });
+
+  } catch (error) {
+    console.error('AI poll generation error:', error);
+
+    // Handle specific AI service errors
+    if (error.message.includes('Groq') || error.message.includes('API')) {
+      return res.status(502).json({
+        error: 'Bad Gateway',
+        message: error.message
+      });
+    }
+
+    if (error.message.includes('parse') || error.message.includes('Invalid')) {
+      return res.status(422).json({
+        error: 'Unprocessable Entity',
+        message: error.message
+      });
+    }
+
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to generate poll structure'
     });
   }
 });

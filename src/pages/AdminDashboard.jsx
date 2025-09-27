@@ -14,6 +14,9 @@ import {
   X,
   Shield,
   AlertCircle,
+  Sparkles,
+  Edit,
+  ChevronDown,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
@@ -46,10 +49,18 @@ const AdminDashboard = () => {
 
   // Create poll form state
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCreateOptions, setShowCreateOptions] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
   const [pollTitle, setPollTitle] = useState("");
   const [pollDescription, setPollDescription] = useState("");
   const [pollOptions, setPollOptions] = useState(["", ""]);
+
+  // AI poll creation state
+  const [showAIForm, setShowAIForm] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [generatedPoll, setGeneratedPoll] = useState(null);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   // Confirmation dialog state
   const [confirmDialog, setConfirmDialog] = useState({
@@ -71,6 +82,20 @@ const AdminDashboard = () => {
       setLoading(false); // Set loading to false if no saved secret
     }
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showCreateOptions && !event.target.closest('.relative')) {
+        setShowCreateOptions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCreateOptions]);
 
   // Fetch all polls
   const fetchPolls = async (secret = adminSecret) => {
@@ -220,6 +245,117 @@ const AdminDashboard = () => {
     const newOptions = [...pollOptions];
     newOptions[index] = value;
     setPollOptions(newOptions);
+  };
+
+  // Generate AI poll
+  const handleGenerateAIPoll = async (e) => {
+    e.preventDefault();
+
+    if (!aiPrompt.trim()) {
+      toast({
+        title: "Missing Prompt",
+        description: "Please provide a description for your poll.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setAiLoading(true);
+      const response = await adminAPI.generateAIPoll({
+        prompt: aiPrompt.trim()
+      }, adminSecret);
+
+      const pollStructure = response.data;
+      setGeneratedPoll(pollStructure);
+      
+      // Pre-fill the edit form with generated data
+      setPollTitle(pollStructure.title);
+      setPollDescription(pollStructure.description);
+      setPollOptions(pollStructure.options);
+      
+      // Close AI form and show edit form
+      setShowAIForm(false);
+      setShowEditForm(true);
+
+      toast({
+        title: "Poll Generated",
+        description: "AI has generated your poll. You can now edit and submit it.",
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to Generate Poll",
+        description: apiUtils.formatError(error),
+        variant: "destructive",
+      });
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Submit edited AI poll
+  const handleSubmitEditedPoll = async (e) => {
+    e.preventDefault();
+
+    if (!pollTitle.trim() || !pollDescription.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in both title and description.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const validOptions = pollOptions.filter(opt => opt.trim() !== "");
+    if (validOptions.length < 2) {
+      toast({
+        title: "Insufficient Options",
+        description: "Please provide at least 2 poll options.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setCreateLoading(true);
+      await adminAPI.createPoll({
+        title: pollTitle.trim(),
+        description: pollDescription.trim(),
+        options: validOptions
+      }, adminSecret);
+
+      // Reset all form data
+      resetAllForms();
+
+      // Refresh polls
+      await fetchPolls();
+
+      toast({
+        title: "Poll Created",
+        description: `"${pollTitle}" has been created successfully!`,
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to Create Poll",
+        description: apiUtils.formatError(error),
+        variant: "destructive",
+      });
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
+  // Reset all form states
+  const resetAllForms = () => {
+    setPollTitle("");
+    setPollDescription("");
+    setPollOptions(["", ""]);
+    setAiPrompt("");
+    setGeneratedPoll(null);
+    setShowCreateForm(false);
+    setShowAIForm(false);
+    setShowEditForm(false);
+    setShowCreateOptions(false);
   };
 
   // Toggle poll status (close/reopen)
@@ -486,14 +622,53 @@ const AdminDashboard = () => {
 
       {/* Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center space-x-2">
-          <Button
-            onClick={() => setShowCreateForm(true)}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Poll
-          </Button>
+        <div className="relative flex items-center space-x-2">
+          <div className="relative">
+            <Button
+              onClick={() => setShowCreateOptions(!showCreateOptions)}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Poll
+              <ChevronDown className="h-4 w-4 ml-2" />
+            </Button>
+            
+            {/* Dropdown Menu */}
+            <AnimatePresence>
+              {showCreateOptions && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute top-full mt-2 left-0 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-50"
+                >
+                  <div className="py-2">
+                    <button
+                      onClick={() => {
+                        setShowCreateOptions(false);
+                        setShowCreateForm(true);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center"
+                    >
+                      <Edit className="h-4 w-4 mr-3 text-slate-500" />
+                      Create Manually
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowCreateOptions(false);
+                        setShowAIForm(true);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center"
+                    >
+                      <Sparkles className="h-4 w-4 mr-3 text-purple-500" />
+                      AI Powered
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -689,6 +864,194 @@ const AdminDashboard = () => {
                   <>
                     <Plus className="h-4 w-4 mr-2" />
                     Create Poll
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Poll Generation Dialog */}
+      <Dialog open={showAIForm} onOpenChange={setShowAIForm}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Sparkles className="h-5 w-5 text-purple-500" />
+              <span>AI-Powered Poll Creation</span>
+            </DialogTitle>
+            <DialogDescription>
+              Describe your poll in natural language and let AI generate the structure for you.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleGenerateAIPoll} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="ai-prompt">Poll Description</Label>
+              <textarea
+                id="ai-prompt"
+                placeholder="e.g., 'Create a poll about favorite programming languages with 5 options' or 'I want to survey people about their preferred work-from-home days'"
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                required
+                rows={4}
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-white resize-none"
+              />
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Be as specific as possible. Mention the number of options you want if you have a preference.
+              </p>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowAIForm(false);
+                  setAiPrompt("");
+                }}
+                disabled={aiLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={aiLoading}
+                className="bg-gradient-to-r from-purple-600 to-pink-600"
+              >
+                {aiLoading ? (
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"
+                    />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate Poll
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Generated Poll Dialog */}
+      <Dialog open={showEditForm} onOpenChange={setShowEditForm}>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Edit className="h-5 w-5 text-blue-500" />
+              <span>Edit & Submit Poll</span>
+            </DialogTitle>
+            <DialogDescription>
+              Review and edit the AI-generated poll before submitting.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmitEditedPoll} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="edit-title">Poll Title</Label>
+              <Input
+                id="edit-title"
+                placeholder="What's your question?"
+                value={pollTitle}
+                onChange={(e) => setPollTitle(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Description</Label>
+              <Input
+                id="edit-description"
+                placeholder="Provide more context for your poll..."
+                value={pollDescription}
+                onChange={(e) => setPollDescription(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Poll Options</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addOption}
+                  disabled={pollOptions.length >= 10}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Option
+                </Button>
+              </div>
+
+              <AnimatePresence>
+                {pollOptions.map((option, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex items-center space-x-2"
+                  >
+                    <Input
+                      placeholder={`Option ${index + 1}`}
+                      value={option}
+                      onChange={(e) => updateOption(index, e.target.value)}
+                    />
+                    {pollOptions.length > 2 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeOption(index)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              <p className="text-xs text-slate-500 dark:text-slate-500">
+                Minimum 2 options required. Maximum 10 options allowed.
+              </p>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => resetAllForms()}
+                disabled={createLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={createLoading}
+                className="bg-gradient-to-r from-blue-600 to-purple-600"
+              >
+                {createLoading ? (
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"
+                    />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Submit Poll
                   </>
                 )}
               </Button>
