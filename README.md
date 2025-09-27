@@ -31,8 +31,7 @@ npm install
 
 3. Configure Environment Variables
 
-**Create a .env file in the root directory and add the following configurations:
-**
+Create a .env file in the root directory and add the following configurations:
 
 PORT=3001
 NODE_ENV=development
