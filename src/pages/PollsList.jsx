@@ -63,11 +63,6 @@ const PollsList = () => {
   const refetch = fetchPolls;
   const isPolling = false;
 
-  // Debug the response structure first
-  console.log('Raw pollsResponse:', pollsResponse);
-  console.log('pollsResponse?.data:', pollsResponse?.data);
-  console.log('pollsResponse?.data?.polls:', pollsResponse?.data?.polls);
-  
   const polls = pollsResponse?.data?.polls || [];
 
   // Debug logging
@@ -133,9 +128,7 @@ const PollsList = () => {
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             className="mx-auto w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full"
           />
-          <p className="text-slate-600 dark:text-slate-400">
-            Loading polls... (Debug: loading={loading.toString()}, polls.length={polls.length})
-          </p>
+          <p className="text-slate-600 dark:text-slate-400">Loading polls...</p>
         </div>
       </div>
     );

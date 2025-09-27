@@ -75,13 +75,9 @@ export const pollAPI = {
   // Get all active polls
   getPolls: async () => {
     try {
-      console.log('Making API call to /polls');
       const response = await api.get('/polls');
-      console.log('API response:', response);
-      console.log('API response data:', response.data);
       return response.data;
     } catch (error) {
-      console.error('API error in getPolls:', error);
       throw error;
     }
   },

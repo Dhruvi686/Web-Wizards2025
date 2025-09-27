@@ -45,15 +45,26 @@ const PollDetail = () => {
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
-  // Fetch poll details
-  const {
-    data: pollResponse,
-    loading: pollLoading,
-    error: pollError,
-    refetch: refetchPoll,
-  } = usePollDetails(id, {
-    enabled: !!id,
-    onError: (error) => {
+  // Direct API calls instead of polling hooks
+  const [pollResponse, setPollResponse] = useState(null);
+  const [pollLoading, setPollLoading] = useState(true);
+  const [pollError, setPollError] = useState(null);
+  const [resultsResponse, setResultsResponse] = useState(null);
+  const [resultsLoading, setResultsLoading] = useState(false);
+
+  const fetchPoll = async () => {
+    if (!id) return;
+    
+    try {
+      setPollLoading(true);
+      setPollError(null);
+      console.log('Fetching poll details for ID:', id);
+      const response = await pollAPI.getPoll(id);
+      console.log('Poll API response:', response);
+      setPollResponse(response);
+    } catch (error) {
+      console.error('Poll fetch error:', error);
+      setPollError(error);
       if (error.response?.status === 404) {
         navigate("/");
         toast({
@@ -62,19 +73,31 @@ const PollDetail = () => {
           variant: "destructive",
         });
       }
-    },
-  });
+    } finally {
+      setPollLoading(false);
+    }
+  };
 
-  // Fetch real-time results
-  const {
-    data: resultsResponse,
-    loading: resultsLoading,
-  } = usePollResults(id, {
-    enabled: !!id && !pollLoading && !pollError,
-  });
+  const refetchPoll = fetchPoll;
+
+  useEffect(() => {
+    fetchPoll();
+  }, [id]);
 
   const poll = pollResponse?.data;
   const results = resultsResponse?.data?.results || poll?.results || [];
+
+  // Debug logging
+  console.log('PollDetail Debug:', {
+    id,
+    pollResponse,
+    poll,
+    pollLoading,
+    pollError,
+    results,
+    pollTitle: poll?.title,
+    pollOptions: poll?.options
+  });
 
   // Handle email submission
   const handleEmailSubmit = async (e) => {

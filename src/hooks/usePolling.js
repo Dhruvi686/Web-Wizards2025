@@ -44,9 +44,6 @@ export const usePolling = (fetchFunction, interval = 3000, options = {}) => {
 
       if (!isComponentMounted.current) return;
 
-      console.log('Polling hook received data:', result);
-      console.log('Data type:', typeof result);
-      console.log('Data structure:', JSON.stringify(result, null, 2));
       setData(result);
       if (onSuccess) {
         onSuccess(result);
@@ -62,7 +59,6 @@ export const usePolling = (fetchFunction, interval = 3000, options = {}) => {
       }
     } finally {
       if (isComponentMounted.current) {
-        console.log('Setting loading to false');
         setLoading(false);
       }
     }
@@ -151,7 +147,6 @@ export const usePolling = (fetchFunction, interval = 3000, options = {}) => {
 export const usePollResults = (pollId, options = {}) => {
   const fetchResults = useCallback(async () => {
     if (!pollId) return null;
-    const { pollAPI } = await import("../services/api");
     return await pollAPI.getPollResults(pollId);
   }, [pollId]);
 
@@ -172,7 +167,6 @@ export const usePollResults = (pollId, options = {}) => {
 export const usePollDetails = (pollId, options = {}) => {
   const fetchPoll = useCallback(async () => {
     if (!pollId) return null;
-    const { pollAPI } = await import("../services/api");
     return await pollAPI.getPoll(pollId);
   }, [pollId]);
 

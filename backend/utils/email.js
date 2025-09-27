@@ -2,7 +2,8 @@ const nodemailer = require('nodemailer');
 
 // Create reusable transporter object using SMTP transport
 const createTransporter = () => {
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
+    service: 'gmail', // Use Gmail service
     host: process.env.EMAIL_HOST,
     port: parseInt(process.env.EMAIL_PORT) || 587,
     secure: false, // true for 465, false for other ports
@@ -10,7 +11,6 @@ const createTransporter = () => {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    // For development with Mailtrap or similar services
     tls: {
       rejectUnauthorized: false
     }
