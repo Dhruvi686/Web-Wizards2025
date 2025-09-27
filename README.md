@@ -33,6 +33,7 @@ npm install
 
 **Create a .env file in the root directory and add the following configurations:
 **
+
 PORT=3001
 NODE_ENV=development
 MONGO_URI=mongodb://localhost:27017/polling-system
