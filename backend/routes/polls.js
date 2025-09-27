@@ -240,36 +240,33 @@ router.post('/:id/vote', validatePollId, async (req, res) => {
     const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
     const userAgent = req.headers['user-agent'] || 'unknown';
 
-    // Use MongoDB session for transaction-like behavior
-    const session = await Poll.db.startSession();
-
     try {
-      await session.withTransaction(async () => {
-        // Create vote record
-        await Vote.createVote(
-          pollId,
-          optionId,
-          tokenHash,
-          tokenDoc.email,
-          ipAddress,
-          userAgent
-        );
+      // Create vote record
+      await Vote.createVote(
+        pollId,
+        optionId,
+        tokenHash,
+        tokenDoc.email,
+        ipAddress,
+        userAgent
+      );
 
-        // Mark token as used
-        await tokenDoc.markAsUsed();
+      // Mark token as used
+      await tokenDoc.markAsUsed();
 
-        // Update poll vote count
-        const success = poll.addVote(optionId);
-        if (success) {
-          await poll.save({ session });
-        } else {
-          throw new Error('Failed to update poll vote count');
-        }
+      // Update poll vote count
+      const success = poll.addVote(optionId);
+      if (success) {
+        await poll.save();
+      } else {
+        throw new Error('Failed to update poll vote count');
+      }
+    } catch (voteError) {
+      console.error('Vote casting error:', voteError);
+      return res.status(500).json({
+        error: 'Vote Failed',
+        message: 'Failed to cast vote. Please try again.'
       });
-    } catch (transactionError) {
-      throw transactionError;
-    } finally {
-      await session.endSession();
     }
 
     // Get updated results

@@ -68,13 +68,13 @@ tokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 // Pre-save middleware to hash token
 tokenSchema.pre("save", function (next) {
-  if (this.isNew) {
+  if (this.isNew && !this.tokenHash) {
     // Generate a random token if not provided
     if (!this.rawToken) {
       this.rawToken = crypto.randomBytes(32).toString("hex");
     }
 
-    // Hash the token for storage
+    // Hash the token for storage if not already set
     this.tokenHash = crypto
       .createHash("sha256")
       .update(this.rawToken)
@@ -139,13 +139,17 @@ tokenSchema.statics.createForPoll = async function (
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + expiryHours);
 
+  const rawToken = this.generateToken();
+  const tokenHash = this.hashToken(rawToken);
+
   const token = new this({
     pollId,
     email,
     expiresAt,
     ipAddress,
     userAgent,
-    rawToken: this.generateToken(),
+    rawToken: rawToken,
+    tokenHash: tokenHash,
   });
 
   await token.save();
