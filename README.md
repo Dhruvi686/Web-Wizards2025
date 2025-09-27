@@ -6,13 +6,13 @@ Web-Wizards2025 is a secure online polling system designed for educational insti
 
 **Key Features**
 
-Admins can create and manage polls with multiple options.
+ - Admins can create and manage polls with multiple options.
 
-Students can vote once per poll.
+ - Students can vote once per poll.
 
-Dynamic live results displayed with charts/graphs.
+ - Dynamic live results displayed with charts/graphs.
 
-Protection against duplicate and invalid votes.
+ - Protection against duplicate and invalid votes.
 
 **⚙️ Setup Instructions**
 
